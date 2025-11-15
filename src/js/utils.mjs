@@ -1,19 +1,17 @@
-// wrapper for querySelector...returns matching element
+// Find an element on the page using a selector
 export function qs(selector, parent = document) {
   return parent.querySelector(selector);
 }
-// or a more concise version if you are into that sort of thing:
-// export const qs = (selector, parent = document) => parent.querySelector(selector);
-
-// retrieve data from localstorage
+// Get data from browser storage
 export function getLocalStorage(key) {
-  return JSON.parse(localStorage.getItem(key));
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : null;
 }
-// save data to local storage
+// Save data to browser storage
 export function setLocalStorage(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
-// set a listener for both touchend and click
+// Add click listener for both touch and mouse clicks
 export function setClick(selector, callback) {
   qs(selector).addEventListener("touchend", (event) => {
     event.preventDefault();
@@ -22,23 +20,21 @@ export function setClick(selector, callback) {
   qs(selector).addEventListener("click", callback);
 }
 
-// get the product id from the query string
+// Get a parameter from the URL (like ?product=123)
 export function getParam(param) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const product = urlParams.get(param);
   return product
 }
-
 export function renderListWithTemplate(template, parentElement, list, position = "afterbegin", clear = false) {
   const htmlStrings = list.map(template);
-  // if clear is true we need to clear out the contents of the parent.
+  // If clear is true, remove everything inside the parent element first
   if (clear) {
     parentElement.innerHTML = "";
   }
   parentElement.insertAdjacentHTML(position, htmlStrings.join(""));
 }
-
 export function renderWithTemplate(template, parentElement, data, callback) {
   parentElement.innerHTML = template;
   if (callback) {
@@ -46,21 +42,24 @@ export function renderWithTemplate(template, parentElement, data, callback) {
   }
 }
 
-async function loadTemplate(path) {
-  const res = await fetch(path);
-  const template = await res.text();
-  return template;
+// Get HTML content from a file
+async function fetchTemplate(templatePath) {
+  const response = await fetch(templatePath);
+  const htmlContent = await response.text();
+  return htmlContent;
 }
-
+// Load and show the header and footer on the page
 export async function loadHeaderFooter() {
-  const headerTemplate = await loadTemplate("../partials/header.html");
-  const footerTemplate = await loadTemplate("../partials/footer.html");
+  // Get the header and footer HTML files
+  const headerHtml = await fetchTemplate("/partials/header.html");
+  const footerHtml = await fetchTemplate("/partials/footer.html");
 
-  const headerElement = document.querySelector("#main-header");
-  const footerElement = document.querySelector("#main-footer");
-
-  renderWithTemplate(headerTemplate, headerElement);
-  renderWithTemplate(footerTemplate, footerElement);
+  // Find where to put the header and footer
+  const headerContainer = document.querySelector("#main-header");
+  const footerContainer = document.querySelector("#main-footer");s
+  // Put the header and footer HTML on the page
+  renderWithTemplate(headerHtml, headerContainer);
+  renderWithTemplate(footerHtml, footerContainer);
 }
 
 
