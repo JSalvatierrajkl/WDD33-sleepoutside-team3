@@ -56,7 +56,7 @@ export async function loadHeaderFooter() {
 
   // Find where to put the header and footer
   const headerContainer = document.querySelector("#main-header");
-  const footerContainer = document.querySelector("#main-footer");s
+  const footerContainer = document.querySelector("#main-footer");
   // Put the header and footer HTML on the page
   renderWithTemplate(headerHtml, headerContainer);
   renderWithTemplate(footerHtml, footerContainer);

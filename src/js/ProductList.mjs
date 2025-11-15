@@ -1,10 +1,12 @@
 import { renderListWithTemplate } from "./utils.mjs";
 
 function productCardTemplate(product) {
+  // Use PrimaryMedium image from API
+  const imageUrl = product.PrimaryMedium || product.Image || "/images/camping-products.jpg";
   return `
     <li class="product-card">
-      <a href="product_pages/index.html?product=${product.Id}">
-        <img src="${product.Image}" alt="${product.Name}">
+      <a href="../product_pages/index.html?product=${product.Id}">
+        <img src="${imageUrl}" alt="${product.Name}">
         <h2>${product.Brand.Name}</h2>
         <h3>${product.NameWithoutBrand}</h3>
         <p class="product-card__price">$${product.FinalPrice}</p>
@@ -19,12 +21,18 @@ export default class ProductList {
     this.listElement = listElement;
   }
   async init() {
-    const list = await this.dataSource.getData();
+    // Pass category to getData method
+    const list = await this.dataSource.getData(this.category);
     this.renderList(list);
+    
+    // Update the page title with the category name
+    const titleElement = document.querySelector('.product-category-title');
+    if (titleElement) {
+      const categoryName = this.category.charAt(0).toUpperCase() + this.category.slice(1).replace('-', ' ');
+      titleElement.textContent = `Top Products: ${categoryName}`;
+    }
   }
   renderList(list) {
-    // const htmlStrings = list.map(productCardTemplate);
-    // this.listElement.insertAdjacentHTML("afterbegin", htmlStrings.join(""));
     renderListWithTemplate(productCardTemplate, this.listElement, list);
   }
 }

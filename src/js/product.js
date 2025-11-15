@@ -6,7 +6,7 @@ async function initProductPage() {
   // Load header and footer first
   await loadHeaderFooter();
   // Get product data and ID from URL
-  const dataSource = new ProductData("tents");
+  const dataSource = new ProductData();
   const productID = getParam("product");
   // Check if there is a product ID in the URL
   if (!productID) {

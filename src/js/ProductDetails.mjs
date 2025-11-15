@@ -74,7 +74,8 @@ function productDetailsTemplate(product) {
   document.querySelector("h2").textContent = product.Brand.Name;
   document.querySelector("h3").textContent = product.NameWithoutBrand;
   const productImage = document.getElementById("productImage");
-  productImage.src = product.Image;
+  // Use PrimaryLarge image from API, fallback to Image or default
+  productImage.src = product.PrimaryLarge || product.Image || "/images/camping-products.jpg";
   productImage.alt = product.NameWithoutBrand;
   document.getElementById("productPrice").textContent = `$${product.FinalPrice.toFixed(2)}`;
   // Show the product color 
