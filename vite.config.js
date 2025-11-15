@@ -16,4 +16,13 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    host: "0.0.0.0",
+    port: process.env.PORT || 5173,
+    allowedHosts: [
+      "wdd33-sleepoutside-team3.onrender.com",
+      ".onrender.com",
+      "localhost",
+    ],
+  },
 });
