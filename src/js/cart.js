@@ -10,11 +10,28 @@ function renderCartContents() {
   
   if (!cartItems || cartItems.length === 0) {
     document.querySelector(".product-list").innerHTML = "<li>Your cart is empty</li>";
+    document.querySelector(".list-footer").classList.add("hide");
     return;
   }
   
   const htmlItems = cartItems.map((item) => cartItemTemplate(item));
   document.querySelector(".product-list").innerHTML = htmlItems.join("");
+  
+  // Calculate and display total
+  const total = calculateCartTotal(cartItems);
+  document.querySelector(".list-total").textContent = `$${total.toFixed(2)}`;
+  document.querySelector(".list-footer").classList.remove("hide");
+}
+
+function calculateCartTotal(cartItems) {
+  if (!cartItems || cartItems.length === 0) {
+    return 0;
+  }
+  
+  return cartItems.reduce((sum, item) => {
+    const price = parseFloat(item.FinalPrice) || 0;
+    return sum + price;
+  }, 0);
 }
 
 function cartItemTemplate(item) {
