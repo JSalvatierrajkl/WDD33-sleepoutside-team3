@@ -62,3 +62,48 @@ export async function loadHeaderFooter() {
   renderWithTemplate(headerTemplate, headerElement);
   renderWithTemplate(footerTemplate, footerElement);
 }
+
+// Display an alert message to the user
+export function alertMessage(message, scroll = true) {
+  // Remove any existing alert
+  const existingAlert = document.querySelector(".alert-message");
+  if (existingAlert) {
+    existingAlert.remove();
+  }
+
+  // Create alert element
+  const alert = document.createElement("div");
+  alert.className = "alert-message";
+  alert.innerHTML = `
+    <span class="alert-close">&times;</span>
+    <p>${message}</p>
+  `;
+
+  // Insert at the top of main element
+  const main = document.querySelector("main");
+  if (main) {
+    main.insertAdjacentElement("afterbegin", alert);
+  } else {
+    document.body.insertAdjacentElement("afterbegin", alert);
+  }
+
+  // Add close button functionality
+  const closeBtn = alert.querySelector(".alert-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      alert.remove();
+    });
+  }
+
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (alert.parentNode) {
+      alert.remove();
+    }
+  }, 5000);
+
+  // Scroll to top if requested
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}

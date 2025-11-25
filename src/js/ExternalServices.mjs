@@ -1,59 +1,52 @@
 const baseURL = import.meta.env.VITE_SERVER_URL || "https://wdd330-backend.onrender.com/";
 
 async function convertToJson(res) {
-  if (res.ok) {
-    const contentType = res.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await res.text();
-      console.error("Response is not JSON. Content:", text.substring(0, 200));
-      throw new Error("Response is not JSON. Server may be returning HTML.");
-    }
-    return res.json();
+  // Convert response to JSON first
+  const contentType = res.headers.get("content-type");
+  let jsonResponse;
+  
+  if (contentType && contentType.includes("application/json")) {
+    jsonResponse = await res.json();
   } else {
     const text = await res.text();
-    console.error("Bad Response:", res.status, text.substring(0, 200));
-    throw new Error(`Bad Response: ${res.status}`);
+    throw { name: 'servicesError', message: { error: "Response is not JSON. Server may be returning HTML." } };
+  }
+  
+  // Check if response is ok after converting to JSON
+  if (res.ok) {
+    return jsonResponse;
+  } else {
+    // Throw custom error object with the response body
+    throw { name: 'servicesError', message: jsonResponse };
   }
 }
 
 export default class ExternalServices {
   constructor() {
-    // Constructor for ExternalServices
+    // this.category = category;
+    // this.path = `../public/json/${this.category}.json`;
   }
-  
   async getData(category) {
-    const url = `${baseURL}products/search/${category}`;
-    console.log("Fetching from:", url);
-    const response = await fetch(url);
+    const response = await fetch(`${baseURL}products/search/${category}`);
     const data = await convertToJson(response);
     
     return data.Result;
   }
-  
   async findProductById(id) {
-    const url = `${baseURL}product/${id}`;
-    console.log("Fetching product from:", url);
-    const response = await fetch(url);
+    const response = await fetch(`${baseURL}product/${id}`);
     const data = await convertToJson(response);
-    console.log(data.Result);
+    // console.log(data.Result);
     return data.Result;
   }
 
   async checkout(payload) {
-    const url = `${baseURL}checkout`;
-    console.log("Submitting order to:", url);
-    
     const options = {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     };
-
-    const response = await fetch(url, options);
-    const data = await convertToJson(response);
-    return data;
+    return await fetch(`${baseURL}checkout/`, options).then(convertToJson);
   }
 }
-

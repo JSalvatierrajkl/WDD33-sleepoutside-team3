@@ -1,50 +1,42 @@
-import { loadHeaderFooter } from "./utils.mjs";
+import { loadHeaderFooter, alertMessage } from "./utils.mjs";
 import CheckoutProcess from "./CheckoutProcess.mjs";
 
-async function initCheckout() {
-  await loadHeaderFooter();
-  
-  const checkoutProcess = new CheckoutProcess("so-cart", ".checkout-summary");
-  checkoutProcess.init();
-  
-  // Handle form submission
-  const checkoutForm = document.forms.checkout;
-  if (checkoutForm) {
-    checkoutForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+loadHeaderFooter();
+
+const checkoutOrder = new CheckoutProcess("so-cart", ".checkout-summary");
+checkoutOrder.init();
+
+// Add event listeners to fire calculateOrderTotal when the user changes the zip code
+document
+  .querySelector("#zip")
+  .addEventListener("blur", checkoutOrder.calculateOrderTotal.bind(checkoutOrder));
+
+// listening for click on the button
+document.querySelector("#checkoutSubmit").addEventListener("click", (e) => {
+  e.preventDefault();
+
+  // Get the form and validate it
+  const checkoutForm = document.forms["checkout"];
+  const isValid = checkoutForm.checkValidity();
+  checkoutForm.reportValidity();
+
+  if (isValid) {
+    checkoutOrder.checkout().catch((err) => {
+      // Handle error
+      let errorMsg = "There was an error processing your order. Please try again.";
       
-      // Check if all fields are filled
-      const formData = new FormData(checkoutForm);
-      let allFieldsFilled = true;
-      
-      for (const [key, value] of formData.entries()) {
-        if (!value || value.trim() === "") {
-          allFieldsFilled = false;
-          break;
+      if (err.name === 'servicesError' && err.message) {
+        // Extract error message from server response
+        if (err.message.error) {
+          errorMsg = err.message.error;
+        } else if (typeof err.message === 'string') {
+          errorMsg = err.message;
+        } else if (err.message.message) {
+          errorMsg = err.message.message;
         }
       }
       
-      if (!allFieldsFilled) {
-        alert("Please fill out all fields before submitting.");
-        return;
-      }
-      
-      // Make sure order total is calculated
-      if (checkoutProcess.orderTotal === 0) {
-        checkoutProcess.calculateOrderTotal();
-      }
-      
-      try {
-        const result = await checkoutProcess.checkout(checkoutForm);
-        console.log("Order submitted successfully:", result);
-        // TODO: Handle success response (next activity)
-      } catch (error) {
-        console.error("Error submitting order:", error);
-        alert("There was an error processing your order. Please try again.");
-      }
+      alertMessage(errorMsg, true);
     });
   }
-}
-
-initCheckout();
+});

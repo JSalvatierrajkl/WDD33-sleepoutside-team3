@@ -5,7 +5,8 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "start": "vite --host --port $PORT",
+    "start": "vite --host --port 5173",
+    "dev": "vite --host --port 5173",
     "build": "vite build --emptyOutDir",
     "preview": "vite preview",
     "lint": "eslint *.js src/**/*.js",
